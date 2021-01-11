@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ASL</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+
+<body>
+<h1 id="title">American Sign Language Recognition</h1>
+<div id="container" class="center">
+    <canvas id="canvasOutput"></canvas>
+    <video autoplay id="videoElement"></video>
+</div>
+
+<h2 id="label"></h2>
+
+<div class = 'video'>
+    <img id="image" src="">
+</div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+
+    // connection to the server
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+    // start the video stream
+    const video = document.querySelector("#videoElement");
+    video.width = 480;
+    if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function (err0r) {
+            console.log(err0r)
+            console.log("Something went wrong!");
+        });
+    }
+
+    const FPS = 25;
+    var seq = [];
+    setInterval(() => {
+        // draw the frame in the page
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        // convert the frame in a string
+        const data = canvas.toDataURL('image/jpeg');
+
+        // check if the frame is not empty (when the webcam starts up)
+        if (data.length > 50) {
+            // fill the buffer
+            seq.push(data);
+        }
+
+        if (seq.length == 10) {
+            // send the frame buffer to the server
+            socket.emit('image', seq);
+            // left-shift of the buffer
+            seq.shift()
+        }
+    }, 10000/FPS);
+
+    // get the predicted gloss
+    var sentence = ""
+    socket.on('response_back', function(label) {
+        if (!sentence.includes(label) && label != "NONE") {
+            sentence += " - " + label;
+            // show the updated sentence in the page
+            document.getElementById("label").innerHTML = sentence.substring(3, sentence.length);
+        }
+    });
+
+</script>
+
+</body>
+</html>

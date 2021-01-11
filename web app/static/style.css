@@ -1,0 +1,38 @@
+html {
+    height: 100%;
+    background-image: linear-gradient(to right top, #b721ff, #4979ff, #00a3ff, #00bfff, #21d4fd);
+
+    font-family: 'Ubuntu', sans-serif;
+}
+
+#title {
+    margin-top: 6rem;
+    margin-bottom: 5rem;
+    color: #fff;
+    font-size: 3.5rem;
+}
+
+#title, #label {
+    text-align: center
+}
+
+#label {
+    color: #fff;
+    font-size: 2.5rem;
+    margin-top: 5rem;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: max-content;
+}
+
+#videoElement {
+    width: auto;
+    border-radius: 0.7rem;
+    box-shadow: rgba(100, 100, 111, 0.5) 0px 7px 29px 0px;
+}
+
+#canvasOutput { width: 0px }
